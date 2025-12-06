@@ -1,0 +1,28 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Bouclier avec gradient 3D léger -->
+  <defs>
+    <linearGradient id="shieldGradient" x1="0" y1="0" x2="0" y2="64">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#5c22b0" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#8b5cf6" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Bouclier -->
+  <path d="M32 2 L58 12 V32 C58 50 32 62 32 62 C32 62 6 50 6 32 V12 L32 2 Z"
+        fill="url(#shieldGradient)" stroke="#8b5cf6" stroke-width="3" filter="url(#shadow)"/>
+
+  <!-- Graphe à l’intérieur -->
+  <polyline points="16,40 24,28 32,34 40,20 48,28" 
+            stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Points lumineux -->
+  <circle cx="16" cy="40" r="3" fill="#ffffff" filter="url(#shadow)"/>
+  <circle cx="24" cy="28" r="3" fill="#ffffff" filter="url(#shadow)"/>
+  <circle cx="32" cy="34" r="3" fill="#ffffff" filter="url(#shadow)"/>
+  <circle cx="40" cy="20" r="3" fill="#ffffff" filter="url(#shadow)"/>
+  <circle cx="48" cy="28" r="3" fill="#ffffff" filter="url(#shadow)"/>
+</svg>

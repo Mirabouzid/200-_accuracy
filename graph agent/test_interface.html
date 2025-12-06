@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockStat - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .metric-value {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .risk-score {
+            font-size: 2em;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .time-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .time-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .time-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 BlockStat</h1>
+            <p>Forensic Graph Agent - Test Interface</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="tokenAddress">Token Contract Address</label>
+                    <input 
+                        type="text" 
+                        id="tokenAddress" 
+                        placeholder="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+                        value="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+                    >
+                </div>
+                <div class="input-group">
+                    <label for="chain">Chain</label>
+                    <input 
+                        type="text" 
+                        id="chain" 
+                        placeholder="ethereum"
+                        value="ethereum"
+                    >
+                </div>
+                <div class="input-group">
+                    <label for="apiProvider">API Provider (pour tester)</label>
+                    <select id="apiProvider" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="auto">Auto (Priorité: Alchemy → BitQuery → Etherscan)</option>
+                        <option value="alchemy" selected>Alchemy (Recommandé)</option>
+                        <option value="bitquery">BitQuery</option>
+                        <option value="etherscan">Etherscan</option>
+                        <!-- removed duplicate alchemy option -->
+                    </select>
+                    <small style="color: #666; font-size: 12px;">Auto utilise la priorité: Alchemy → BitQuery → Etherscan. Alchemy est recommandé pour la vitesse et les métadonnées enrichies.</small>
+                </div>
+                <div class="input-group">
+                    <label for="maxTransactions">Max Transactions à récupérer</label>
+                    <input 
+                        type="number" 
+                        id="maxTransactions" 
+                        placeholder="10000"
+                        value="10000"
+                        min="100"
+                        max="50000"
+                        step="1000"
+                    >
+                    <small style="color: #666; font-size: 12px;">Plus = plus de données mais plus lent. Hackathon: 10000</small>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="enableTimeout" checked onchange="toggleTimeout()">
+                        Activer Timeout (pour respecter contrainte hackathon <30s)
+                    </label>
+                </div>
+                <div class="input-group" id="timeoutGroup" style="display: block;">
+                    <label for="timeoutSeconds">Timeout (secondes)</label>
+                    <input 
+                        type="number" 
+                        id="timeoutSeconds" 
+                        placeholder="25"
+                        value="25"
+                        min="10"
+                        max="120"
+                        step="5"
+                    >
+                    <small style="color: #666; font-size: 12px;">Hackathon: 25s (fail-fast). Pour tester: 60s+</small>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="saveToGraphDB" onchange="toggleGraphDB()">
+                        💾 Sauvegarder dans Graph Database (optionnel - après analyse)
+                    </label>
+                </div>
+                <div class="input-group" id="graphDBGroup" style="display: none;">
+                    <label for="graphDBType">Graph Database</label>
+                    <select id="graphDBType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="memgraph">Memgraph (Recommandé - Plus rapide, temps réel)</option>
+                        <option value="neo4j">Neo4j (Plus de features, plus populaire)</option>
+                    </select>
+                    <small style="color: #666; font-size: 12px;">
+                        💡 Pour visualiser: Neo4j Browser (http://localhost:7474) ou Memgraph Lab (http://localhost:3000)
+                    </small>
+                </div>
+                <div class="input-group">
+                    <label for="communityMode">Community Detection</label>
+                    <select id="communityMode" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="auto" selected>Auto (Leiden par défaut, Louvain si petit graphe)</option>
+                        <option value="leiden">Leiden (Forcé)</option>
+                        <option value="louvain">Louvain (Forcé)</option>
+                    </select>
+                    <small style="color: #666; font-size: 12px;">Choisissez l'algorithme de détection de communautés</small>
+                </div>
+                </div>
+                <button id="analyzeBtn" onclick="analyzeToken()">🔍 Analyser le Token</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyse en cours... (max 30s)</p>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+
+            <div class="results" id="results">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('overview')">📊 Vue d'ensemble</button>
+                    <button class="tab" onclick="switchTab('graph')">🕸️ Graph Visualisation</button>
+                    <button class="tab" onclick="switchTab('holders')">👥 Holders</button>
+                    <button class="tab" onclick="switchTab('clusters')">🔗 Clusters</button>
+                    <button class="tab" onclick="switchTab('wash')">🔄 Wash Trading</button>
+                    <button class="tab" onclick="switchTab('raw')">📄 JSON</button>
+                </div>
+
+                <div id="overview" class="tab-content active">
+                    <div class="result-card">
+                        <h3>Score de Risque</h3>
+                        <div id="riskScore" class="risk-score"></div>
+                        <div class="metric">
+                            <span class="metric-label">Temps d'analyse</span>
+                            <span class="metric-value" id="analysisTime"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Coefficient Gini</span>
+                            <span class="metric-value" id="gini"></span>
+                            <span class="time-badge time-danger" id="giniDangerBadge" style="display:none; margin-left:8px;">Dangerously centralized</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Nombre de holders analysés</span>
+                            <span class="metric-value" id="holdersCount"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Clusters suspects</span>
+                            <span class="metric-value" id="clustersCount"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Paires de wash trading</span>
+                            <span class="metric-value" id="washCount"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Connexions aux mixers</span>
+                            <span class="metric-value" id="mixerCount"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">API Provider utilisé</span>
+                            <span class="metric-value" id="apiProviderUsed"></span>
+                        </div>
+                        
+                        <!-- New metrics: Confidence & Data Quality -->
+                        <div class="metric">
+                            <span class="metric-label">Confiance de l'analyse</span>
+                            <span class="metric-value" id="confidence"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Qualité des données</span>
+                            <span class="metric-value" id="dataQualitySummary"></span>
+                        </div>
+                        
+                        <div id="storageResult" style="display: none; margin-top: 10px; justify-content: space-between; align-items: center; gap: 10px;">
+                            <span id="storageInfo"></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- New explanations card for reasoning -->
+                <div id="overview-reasoning" class="tab-content active">
+                    <div class="result-card">
+                        <h3>Explications</h3>
+                        <ul id="reasoningList" style="padding-left: 18px;">
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="graph" class="tab-content">
+                    <div class="result-card">
+                        <h3>Graph Visualisation</h3>
+                        <div class="metric">
+                            <span class="metric-label">Noeuds</span>
+                            <span class="metric-value" id="nodeCount">0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Liens</span>
+                            <span class="metric-value" id="linkCount">0</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center; margin: 10px 0;">
+                            <label><input type="checkbox" id="showLabels"> Afficher les labels</label>
+                            <label><input type="checkbox" id="highlightSuspicious"> Surligner les suspects</label>
+                            <button onclick="resetGraphView()" style="padding: 6px 12px;">Réinitialiser</button>
+                            <button onclick="toggle3D()" style="padding: 6px 12px;">Basculer en 3D</button>
+                        </div>
+                        <div id="graphContainer" style="width: 100%; height: 500px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;">
+                            <canvas id="graphCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="holders" class="tab-content">
+                    <div class="result-card">
+                        <h3>Top Holders</h3>
+                        <div id="holdersList"></div>
+                    </div>
+                </div>
+
+                <div id="clusters" class="tab-content">
+                    <div class="result-card">
+                        <h3>Clusters suspects</h3>
+                        <div id="clustersList"></div>
+                    </div>
+                </div>
+
+                <div id="wash" class="tab-content">
+                    <div class="result-card">
+                        <h3>Wash Trading</h3>
+                        <div id="washList"></div>
+                    </div>
+                </div>
+
+                <div id="raw" class="tab-content">
+                    <div class="result-card">
+                        <h3>Données JSON brutes</h3>
+                        <pre id="rawJson"></pre>
+                    </div>
+                </div>
+
+                <script>
+                    async function analyzeToken() {
+                        const btn = document.getElementById('analyzeBtn');
+                        const loading = document.getElementById('loading');
+                        const errorDiv = document.getElementById('error');
+                        const resultsDiv = document.getElementById('results');
+
+                        // Reset UI state
+                        if (errorDiv) errorDiv.style.display = 'none';
+                        if (resultsDiv) resultsDiv.style.display = 'none';
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.dataset.originalText = btn.textContent;
+                            btn.textContent = 'Analyse en cours...';
+                        }
+                        if (loading) loading.style.display = 'block';
+
+                        try {
+                            const tokenAddress = document.getElementById('tokenAddress').value.trim();
+                            const chain = document.getElementById('chain').value.trim() || 'ethereum';
+                            const apiProvider = document.getElementById('apiProvider').value;
+                            const maxTransactionsInput = document.getElementById('maxTransactions').value;
+                            const maxTransactions = maxTransactionsInput ? parseInt(maxTransactionsInput, 10) : null;
+                            const timeoutEnabled = document.getElementById('enableTimeout').checked;
+                            const timeoutSeconds = timeoutEnabled ? parseInt(document.getElementById('timeoutSeconds').value, 10) : null;
+                            const saveToGraphDB = document.getElementById('saveToGraphDB').checked;
+                            const graphDBType = document.getElementById('graphDBType').value;
+                           const communityMode = document.getElementById('communityMode') ? document.getElementById('communityMode').value : 'auto';
+
+                            const body = {
+                                token_address: tokenAddress,
+                                chain,
+                                api_provider: apiProvider,
+                                max_transactions: maxTransactions,
+                                timeout_seconds: timeoutSeconds,
+                                save_to_graph_db: saveToGraphDB,
+                                graph_db_type: graphDBType,
+                                community_mode: communityMode
+                            };
+
+                           const resp = await fetch('http://localhost:8000/analyze', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(body)
+                            });
+
+                            if (!resp.ok) {
+                                const detailText = await resp.text();
+                                throw new Error(detailText || 'Erreur serveur');
+                            }
+                            const data = await resp.json();
+
+                            // Fill overview metrics
+                            // Fill overview metrics
+                            const analysisAlgo = data.metrics?.community_algorithm;
+                             const analysisTimeEl = document.getElementById('analysisTime');
+                             if (analysisTimeEl) analysisTimeEl.textContent = (data.analysis_time_seconds ?? 0) + 's' + (analysisAlgo ? ` · ${analysisAlgo}` : '');
+                            const giniVal = data.metrics?.gini ?? 0;
+                            const giniEl = document.getElementById('gini');
+                            if (giniEl) giniEl.textContent = Number(giniVal).toFixed(3);
+                            const giniBadge = document.getElementById('giniDangerBadge');
+                            if (giniBadge) {
+                                giniBadge.style.display = (giniVal > 0.9) ? 'inline-block' : 'none';
+                            }
+
+                            const holdersCountEl = document.getElementById('holdersCount');
+                            if (holdersCountEl) holdersCountEl.textContent = (data.top_holders?.length ?? 0);
+
+                            const clustersCountEl = document.getElementById('clustersCount');
+                            if (clustersCountEl) clustersCountEl.textContent = (data.suspicious_clusters?.length ?? 0);
+
+                            const washCountEl = document.getElementById('washCount');
+                            if (washCountEl) washCountEl.textContent = (data.wash_trade_pairs?.length ?? 0);
+
+                            const mixerCountEl = document.getElementById('mixerCount');
+                            if (mixerCountEl) mixerCountEl.textContent = (data.mixer_flags?.length ?? 0);
+
+                            const riskScoreDiv = document.getElementById('riskScore');
+                            const risk = data.risk_score ?? 0;
+                            if (riskScoreDiv) {
+                                riskScoreDiv.textContent = (risk * 100).toFixed(1) + '%';
+                                riskScoreDiv.classList.remove('risk-low','risk-medium','risk-high');
+                                if (risk < 0.33) riskScoreDiv.classList.add('risk-low');
+                                else if (risk < 0.66) riskScoreDiv.classList.add('risk-medium');
+                                else riskScoreDiv.classList.add('risk-high');
+                            }
+
+                            // API Provider used (if element exists)
+                            const apiUsedEl = document.getElementById('apiProviderUsed');
+                            if (apiUsedEl) {
+                                const requestedProvider = apiProvider;
+                                const actualProvider = data.metrics?.provider_used || requestedProvider;
+                                const providerNames = {
+                                    'auto': 'Auto (Alchemy → BitQuery → Etherscan)',
+                                    'bitquery': 'BitQuery',
+                                    'etherscan': 'Etherscan',
+                                    'alchemy': 'Alchemy'
+                                };
+                                apiUsedEl.textContent = providerNames[actualProvider] || actualProvider;
+                            }
+
+                            // New: Confidence & Data Quality
+                            const confEl = document.getElementById('confidence');
+                            if (confEl) confEl.textContent = data.metrics?.confidence || 'n/a';
+                            const dqEl = document.getElementById('dataQualitySummary');
+                            if (dqEl) {
+                                const dq = data.metrics?.dataQuality || {};
+                                const txCount = dq.transactionCount ?? (data.metrics?.transactions_analyzed ?? (data.metrics?.total_transactions ?? 0));
+                                const days = dq.timeSpanDays ?? null;
+                                const walletCount = dq.walletCount ?? (data.top_holders?.length ?? 0);
+                                dqEl.textContent = `${txCount} tx${days !== null ? ' · ' + days + ' jours' : ''} · ${walletCount} wallets`;
+                            }
+
+                            // New: Reasoning list
+                            const reasoning = Array.isArray(data.metrics?.reasoning) ? data.metrics.reasoning : [];
+                            const reasoningListEl = document.getElementById('reasoningList');
+                            if (reasoningListEl) {
+                                reasoningListEl.innerHTML = reasoning.length
+                                    ? reasoning.map(r => `<li>${r}</li>`).join('')
+                                    : '<li>Aucune raison spécifique</li>';
+                            }
+                            // Holders List
+                            const holdersHtml = (data.top_holders?.slice(0, 10) || []).map((h, i) => `
+                                <div class="metric">
+                                    <span class="metric-label">#${i + 1}</span>
+                                    <span class="metric-value">${(h.address || '').substring(0, 10)}... (PageRank: ${(h.pagerank ?? 0).toFixed(4)})</span>
+                                </div>
+                            `).join('') || '<p>Aucun holder trouvé</p>';
+                            const holdersListEl = document.getElementById('holdersList');
+                            if (holdersListEl) holdersListEl.innerHTML = holdersHtml;
+
+                            // Clusters List
+                            const clustersHtml = (data.suspicious_clusters || []).map((c, i) => `
+                                <div class="metric">
+                                    <span class="metric-label">Cluster #${c.cluster_id}</span>
+                                    <span class="metric-value">${c.size} wallets (${c.risk_level})</span>
+                                </div>
+                            `).join('') || '<p>Aucun cluster suspect trouvé</p>';
+                            const clustersListEl = document.getElementById('clustersList');
+                            if (clustersListEl) clustersListEl.innerHTML = clustersHtml;
+
+                            // Wash Trading List
+                            const washHtml = (data.wash_trade_pairs?.slice(0, 10) || []).map((w, i) => `
+                                <div class="metric">
+                                    <span class="metric-label">Paire ${i + 1}</span>
+                                    <span class="metric-value">${w.transaction_count} transactions (${w.risk_level})</span>
+                                </div>
+                            `).join('') || '<p>Aucun wash trading détecté</p>';
+                            const washListEl = document.getElementById('washList');
+                            if (washListEl) washListEl.innerHTML = washHtml;
+
+                            // Raw JSON
+                            const rawJsonEl = document.getElementById('rawJson');
+                            if (rawJsonEl) rawJsonEl.textContent = JSON.stringify(data, null, 2);
+
+                            // Initialize graph visualization
+                            if (data.graph_data) {
+                                window.graphData = data.graph_data;
+                                if (typeof initializeGraphPositions === 'function') {
+                                    initializeGraphPositions();
+                                }
+                            }
+
+                            // Show results
+                            if (resultsDiv) resultsDiv.style.display = 'block';
+                        } catch (err) {
+                            if (typeof showError === 'function') {
+                                showError(err.message || 'Erreur inconnue');
+                            } else {
+                                alert(err.message || 'Erreur inconnue');
+                            }
+                        } finally {
+                            if (loading) loading.style.display = 'none';
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.textContent = btn.dataset.originalText || '🔍 Analyser le Token';
+                            }
+                        }
+                    }
+
+                    function toggleTimeout() {
+                        const enabled = document.getElementById('enableTimeout').checked;
+                        const group = document.getElementById('timeoutGroup');
+                        if (group) group.style.display = enabled ? 'block' : 'none';
+                    }
+
+                    function toggleGraphDB() {
+                        const enabled = document.getElementById('saveToGraphDB').checked;
+                        const group = document.getElementById('graphDBGroup');
+                        if (group) group.style.display = enabled ? 'block' : 'none';
+                    }
+
+                    function switchTab(tabName, e) {
+                        // Hide all tabs
+                        document.querySelectorAll('.tab-content').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        document.querySelectorAll('.tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+
+                        // Show selected tab
+                        document.getElementById(tabName).classList.add('active');
+                        const target = e?.target || (typeof event !== 'undefined' ? event.target : null);
+                        if (target) target.classList.add('active');
+                    }
+
+                    function showError(message) {
+                        const errorDiv = document.getElementById('error');
+                        errorDiv.textContent = message;
+                        errorDiv.style.display = 'block';
+                    }
+
+                    function showSuccess(message) {
+                        const successDiv = document.getElementById('success');
+                        successDiv.textContent = message;
+                        successDiv.style.display = 'block';
+                        setTimeout(() => {
+                            successDiv.style.display = 'none';
+                        }, 5000);
+                    }
+
+                    // Allow Enter key to trigger analysis
+                    document.getElementById('tokenAddress').addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            analyzeToken();
+                        }
+                    });
+
+                    // Graph Visualization Variables
+                    let graphData = null;
+                    let is3D = false;
+                    let canvas, ctx;
+                    let nodes = [];
+                    let links = [];
+                    let selectedNode = null;
+                    let hoveredNode = null;
+                    let camera = { x: 0, y: 0, zoom: 1 };
+                    let isDragging = false;
+                    let dragStart = { x: 0, y: 0 };
+                    let nodePositions = {};
+                
+                    // Initialize Graph Canvas
+                    function initGraph() {
+                        canvas = document.getElementById('graphCanvas');
+                        ctx = canvas.getContext('2d');
+                        
+                        // Set canvas size
+                        const container = document.getElementById('graphContainer');
+                        canvas.width = container.clientWidth;
+                        canvas.height = container.clientHeight;
+                        
+                        // Event listeners
+                        canvas.addEventListener('mousedown', onMouseDown);
+                        canvas.addEventListener('mousemove', onMouseMove);
+                        canvas.addEventListener('mouseup', onMouseUp);
+                        canvas.addEventListener('wheel', onWheel);
+                        
+                        // Redraw on resize
+                        window.addEventListener('resize', () => {
+                            canvas.width = container.clientWidth;
+                            canvas.height = container.clientHeight;
+                            drawGraph();
+                        });
+                    }
+
+                    function updateGraph() {
+                        if (!graphData) return;
+                        drawGraph();
+                    }
+
+                    function drawGraph() {
+                        if (!graphData || !canvas) return;
+                        
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        const showLabels = document.getElementById('showLabels').checked;
+                        const highlightSuspicious = document.getElementById('highlightSuspicious').checked;
+                        
+                        // Draw links first (so nodes appear on top)
+                        links.forEach(link => {
+                            const source = nodePositions[link.source];
+                            const target = nodePositions[link.target];
+                            
+                            if (!source || !target) return;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(source.x, source.y);
+                            ctx.lineTo(target.x, target.y);
+                            
+                            // Thick edges for high volume or wash trades
+                            const isWashTrade = link.is_wash_trade;
+                            const lineWidth = isWashTrade ? 3 : (link.value > 1000 ? 2 : 1);
+                            ctx.lineWidth = lineWidth;
+                            ctx.strokeStyle = isWashTrade ? '#dc3545' : (link.value > 1000 ? '#ffc107' : '#667eea');
+                            ctx.stroke();
+                        });
+                        
+                        // Draw nodes
+                        nodes.forEach(node => {
+                            const pos = nodePositions[node.id];
+                            if (!pos) return;
+                            
+                            // Node color based on risk
+                            let color = '#28a745'; // Normal (green)
+                            let radius = 8;
+                            
+                            if (node.is_mixer) {
+                                color = '#dc3545'; // Red for mixers
+                                radius = 12;
+                            } else if (node.pagerank > 0.1) {
+                                color = '#667eea'; // Blue for central nodes (high PageRank)
+                                radius = 15;
+                            } else if (node.pagerank > 0.05) {
+                                color = '#ffc107'; // Yellow for high risk
+                                radius = 10;
+                            }
+                            
+                            // Highlight if hovered or selected
+                            if (hoveredNode === node.id || selectedNode === node.id) {
+                                ctx.shadowBlur = 20;
+                                ctx.shadowColor = color;
+                                radius += 3;
+                            } else {
+                                ctx.shadowBlur = 0;
+                            }
+                            
+                            // Draw node
+                            ctx.beginPath();
+                            ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                            ctx.fillStyle = color;
+                            ctx.fill();
+                            ctx.strokeStyle = '#fff';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                            
+                            // Draw label
+                            if (showLabels) {
+                                ctx.fillStyle = '#fff';
+                                ctx.font = '10px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(node.id.substring(0, 8) + '...', pos.x, pos.y + radius + 12);
+                            }
+                        });
+                        
+                        // Update info
+                        document.getElementById('nodeCount').textContent = nodes.length;
+                        document.getElementById('linkCount').textContent = links.length;
+                    }
+
+                    function initializeGraphPositions() {
+                        if (!graphData) return;
+                        
+                        nodes = graphData.nodes || [];
+                        links = graphData.links || [];
+                        
+                        // Initialize positions using force-directed layout (simplified)
+                        const centerX = canvas.width / 2;
+                        const centerY = canvas.height / 2;
+                        const radius = Math.min(canvas.width, canvas.height) / 3;
+                        
+                        nodes.forEach((node, i) => {
+                            if (!nodePositions[node.id]) {
+                                // Place nodes in a circle initially
+                                const angle = (i / nodes.length) * Math.PI * 2;
+                                nodePositions[node.id] = {
+                                    x: centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * 100,
+                                    y: centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * 100
+                                };
+                            }
+                        });
+                        
+                        // Simple force-directed simulation (few iterations)
+                        for (let iter = 0; iter < 50; iter++) {
+                            links.forEach(link => {
+                                const source = nodePositions[link.source];
+                                const target = nodePositions[link.target];
+                                
+                                if (!source || !target) return;
+                                
+                                const dx = target.x - source.x;
+                                const dy = target.y - source.y;
+                                const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+                                const force = (distance - 100) * 0.1;
+                                
+                                const fx = (dx / distance) * force;
+                                const fy = (dy / distance) * force;
+                                
+                                source.x += fx * 0.1;
+                                source.y += fy * 0.1;
+                                target.x -= fx * 0.1;
+                                target.y -= fy * 0.1;
+                            });
+                        }
+                        
+                        drawGraph();
+                    }
+
+                    function onMouseDown(e) {
+                        isDragging = true;
+                        const rect = canvas.getBoundingClientRect();
+                        dragStart.x = e.clientX - rect.left;
+                        dragStart.y = e.clientY - rect.top;
+                    }
+
+                    function onMouseMove(e) {
+                        const rect = canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        if (isDragging) {
+                            const dx = x - dragStart.x;
+                            const dy = y - dragStart.y;
+                            
+                            Object.keys(nodePositions).forEach(id => {
+                                nodePositions[id].x += dx;
+                                nodePositions[id].y += dy;
+                            });
+                            
+                            dragStart.x = x;
+                            dragStart.y = y;
+                            drawGraph();
+                        } else {
+                            // Check hover
+                            let found = false;
+                            nodes.forEach(node => {
+                                const pos = nodePositions[node.id];
+                                if (!pos) return;
+                                
+                                const dx = x - pos.x;
+                                const dy = y - pos.y;
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                
+                                if (distance < 15) {
+                                    hoveredNode = node.id;
+                                    found = true;
+                                    canvas.style.cursor = 'pointer';
+                                    
+                                    // Show tooltip
+                                    showNodeTooltip(node, x, y);
+                                }
+                            });
+                            
+                            if (!found) {
+                                hoveredNode = null;
+                                canvas.style.cursor = 'default';
+                                hideTooltip();
+                            } else {
+                                drawGraph();
+                            }
+                        }
+                    }
+
+                    function onMouseUp(e) {
+                        isDragging = false;
+                    }
+
+                    function onWheel(e) {
+                        e.preventDefault();
+                        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                        camera.zoom *= delta;
+                        camera.zoom = Math.max(0.5, Math.min(2, camera.zoom));
+                        drawGraph();
+                    }
+
+                    function showNodeTooltip(node, x, y) {
+                        const tooltip = document.getElementById('nodeTooltip') || createTooltip();
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = (x + 20) + 'px';
+                        tooltip.style.top = (y + 20) + 'px';
+                        tooltip.innerHTML = `
+                            <strong>${node.id.substring(0, 10)}...</strong><br>
+                            PageRank: ${node.pagerank.toFixed(4)}<br>
+                            Balance: ${node.balance.toFixed(2)}<br>
+                            ${node.is_mixer ? '<span style="color: #dc3545;">⚠️ Mixer</span>' : ''}
+                        `;
+                    }
+
+                    function createTooltip() {
+                        const tooltip = document.createElement('div');
+                        tooltip.id = 'nodeTooltip';
+                        tooltip.style.cssText = 'position: absolute; background: rgba(0,0,0,0.9); color: white; padding: 10px; border-radius: 5px; font-size: 12px; pointer-events: none; z-index: 1000; display: none;';
+                        document.getElementById('graphContainer').appendChild(tooltip);
+                        return tooltip;
+                    }
+
+                    function hideTooltip() {
+                        const tooltip = document.getElementById('nodeTooltip');
+                        if (tooltip) tooltip.style.display = 'none';
+                    }
+
+                    function resetGraphView() {
+                        nodePositions = {};
+                        camera = { x: 0, y: 0, zoom: 1 };
+                        initializeGraphPositions();
+                    }
+
+                    function toggle3D() {
+                        is3D = !is3D;
+                        // 3D would require WebGL, for now just show message
+                        alert('3D mode requires WebGL. Using 2D visualization for now.');
+                    }
+
+                    // Initialize graph when page loads
+                    window.addEventListener('load', () => {
+                        initGraph();
+                        const analyzeBtnEl = document.getElementById('analyzeBtn');
+                        if (analyzeBtnEl) {
+                            analyzeBtnEl.addEventListener('click', analyzeToken);
+                        }
+                    });
+                </script>
+                <style>
+                    #nodeTooltip {
+                        position: absolute;
+                        background: rgba(0,0,0,0.9);
+                        color: white;
+                        padding: 10px;
+                        border-radius: 5px;
+                        font-size: 12px;
+                        pointer-events: none;
+                        z-index: 1000;
+                        display: none;
+                    }
+                </style>
+            </body>
+            </html>
+
+
+<!-- ================= Chat Agent UI (Agno + Groq) ================ -->
+<div class="result-card" id="chat-section" style="margin-top: 40px;">
+  <h3>Chatbot Graph Agent (test de l'API /chat)</h3>
+  <p style="color:#666; margin-bottom:12px;">Envoyez un message à l'agent. Il pourra générer un bloc Cypher et, si vous cochez l'option, l'exécuter dans Neo4j.</p>
+  <div class="input-group">
+    <label for="chatMessage">Message</label>
+    <textarea id="chatMessage" rows="4" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:16px;"></textarea>
+  </div>
+  <div class="input-group" style="display:flex; align-items:center; gap:10px;">
+    <input type="checkbox" id="chatExecute" checked>
+    <label for="chatExecute" style="margin:0;">Exécuter automatiquement le Cypher extrait</label>
+  </div>
+  <button id="chatSend">Envoyer</button>
+  <div class="loading" id="chatLoading">
+    <div class="spinner"></div>
+    <div>Envoi au chatbot, merci de patienter...</div>
+  </div>
+  <div class="error" id="chatError"></div>
+  <div class="results" id="chatResults">
+    <div class="result-card">
+      <h3>Réponse de l'agent</h3>
+      <pre id="agentResponse"></pre>
+    </div>
+    <div class="result-card">
+      <h3>Cypher extrait</h3>
+      <pre id="cypherBlock"></pre>
+    </div>
+    <div class="result-card">
+      <h3>Résultats d'exécution</h3>
+      <pre id="executionResults"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const $ = (id) => document.getElementById(id);
+  const chatSend = $('chatSend');
+  const chatMessage = $('chatMessage');
+  const chatExecute = $('chatExecute');
+  const chatLoading = $('chatLoading');
+  const chatError = $('chatError');
+  const chatResults = $('chatResults');
+  const agentResponse = $('agentResponse');
+  const cypherBlock = $('cypherBlock');
+  const executionResults = $('executionResults');
+
+  function show(el) { el.style.display = 'block'; }
+  function hide(el) { el.style.display = 'none'; }
+  function setText(el, text) { el.textContent = text; }
+
+  async function sendMessage() {
+    hide(chatError);
+    hide(chatResults);
+
+    const message = chatMessage.value.trim();
+    const execute = !!chatExecute.checked;
+    if (!message) {
+      setText(chatError, "Veuillez saisir un message.");
+      show(chatError);
+      return;
+    }
+
+    chatSend.disabled = true;
+    show(chatLoading);
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, execute })
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || `Erreur HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const resp = typeof data.response === 'string' ? data.response : JSON.stringify(data.response, null, 2);
+      const cypher = data.cypher || 'Aucun bloc Cypher détecté.';
+      const exec = data.execution ? JSON.stringify(data.execution, null, 2) : 'Non exécuté.';
+
+      setText(agentResponse, resp);
+      setText(cypherBlock, cypher);
+      setText(executionResults, exec);
+
+      show(chatResults);
+    } catch (e) {
+      setText(chatError, e.message || 'Erreur inconnue');
+      show(chatError);
+    } finally {
+      hide(chatLoading);
+      chatSend.disabled = false;
+    }
+  }
+
+  chatSend.addEventListener('click', sendMessage);
+})();
+</script>
+<!-- ================= Fin Chat Agent UI ================= -->
+
